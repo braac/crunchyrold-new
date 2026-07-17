@@ -23,30 +23,24 @@ NSString* videoToken = nil;
         if ([request isKindOfClass: [NSMutableURLRequest class]]) {
             NSString* requestURLString = [[request URL] absoluteString];
             
-            if ([requestURLString isEqual: @"https://api.crunchyroll.com/auth/v1/token"]) {
+            if ([requestURLString isEqual: @"https://www.crunchyroll.com/auth/v1/token"]) {
                 NSMutableURLRequest* mutableRequest = (NSMutableURLRequest*) request;
                 
-                NSData* originalBodyData = [mutableRequest HTTPBody];
-                NSString* originalBodyString = [[NSString alloc] initWithData: originalBodyData encoding: NSUTF8StringEncoding];
+                // Hardcoded new credentials
+                NSString* newClientId = @"zujyohvez1ofx23euerw";
+                NSString* newClientSecret = @"RthKTsp0LbPT5S1YCrEKrDj-KidnnYzl";
                 
-                NSString* updatedBodyString = [NSString
-                    stringWithFormat: @"%@&device_id=%@&device_name=%@&device_type=%@",
-                    originalBodyString,
-                    [[[[UIDevice currentDevice] identifierForVendor] UUIDString]
-                        stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]
-                    ],
-                    [[[UIDevice currentDevice] name]
-                        stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]
-                    ],
-                    [[[UIDevice currentDevice] systemName]
-                        stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLQueryAllowedCharacterSet]
-                    ]
-                ];
-                NSData* updatedBodyData = [updatedBodyString dataUsingEncoding: NSUTF8StringEncoding];
+                // Format them as Base64 for the Basic Auth header
+                NSString* combinedCredentials = [NSString stringWithFormat: @"%@:%@", newClientId, newClientSecret];
+                NSData* credentialsData = [combinedCredentials dataUsingEncoding: NSUTF8StringEncoding];
+                NSString* base64Credentials = [credentialsData base64EncodedStringWithOptions: 0];
+                NSString* newAuthHeader = [NSString stringWithFormat: @"Basic %@", base64Credentials];
                 
-                [mutableRequest setHTTPBody: updatedBodyData];
+                // Forcefully replace the old Authorization header
+                [mutableRequest setValue: newAuthHeader forHTTPHeaderField: @"Authorization"];
+                
             } else if (
-                [requestURLString hasPrefix: @"https://api.crunchyroll.com/cms/v2/"] &&
+                [requestURLString hasPrefix: @"https://www.crunchyroll.com/cms/v2/"] &&
                 [requestURLString containsString: @"/crunchyroll/objects/"]
             ) {
                 NSString* episodeId = [[requestURLString componentsSeparatedByString: @"/crunchyroll/objects/"][1] componentsSeparatedByString: @"?"][0];
@@ -55,11 +49,11 @@ NSString* videoToken = nil;
                     requestedEpisodeId = episodeId;
                 }
             } else if (
-                [requestURLString hasPrefix: @"https://api.crunchyroll.com/content/v1/"]
+                [requestURLString hasPrefix: @"https://www.crunchyroll.com/content/v1/"]
             ) {
                 authHeader = [request valueForHTTPHeaderField: @"Authorization"];
             } else if (
-                [requestURLString hasPrefix: @"https://api.crunchyroll.com/cms/v2/"] &&
+                [requestURLString hasPrefix: @"https://www.crunchyroll.com/cms/v2/"] &&
                 [requestURLString containsString: @"/crunchyroll/videos/"] &&
                 [requestURLString containsString: @"/streams"]
             ) {
@@ -81,8 +75,6 @@ NSString* videoToken = nil;
                         completionHandler(originalResponseData, response, error);
                         return;
                     }
-                    
-                    // Behold: the worst way to modify JSON ever
                     
                     NSString* streamURL = [[[originalResponseString componentsSeparatedByString: @"}},\"token\":\""][1] componentsSeparatedByString: @"\"url\":\""][1] componentsSeparatedByString: @"\""][0];
                     
