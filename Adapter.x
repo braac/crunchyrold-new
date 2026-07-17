@@ -23,7 +23,7 @@ NSString* videoToken = nil;
         if ([request isKindOfClass: [NSMutableURLRequest class]]) {
             NSString* requestURLString = [[request URL] absoluteString];
             
-            if ([requestURLString isEqual: @"https://beta-api.crunchyroll.com/auth/v1/token"]) {
+            if ([requestURLString isEqual: @"https://api.crunchyroll.com/auth/v1/token"]) {
                 NSMutableURLRequest* mutableRequest = (NSMutableURLRequest*) request;
                 
                 NSData* originalBodyData = [mutableRequest HTTPBody];
@@ -46,7 +46,7 @@ NSString* videoToken = nil;
                 
                 [mutableRequest setHTTPBody: updatedBodyData];
             } else if (
-                [requestURLString hasPrefix: @"https://beta-api.crunchyroll.com/cms/v2/"] &&
+                [requestURLString hasPrefix: @"https://api.crunchyroll.com/cms/v2/"] &&
                 [requestURLString containsString: @"/crunchyroll/objects/"]
             ) {
                 NSString* episodeId = [[requestURLString componentsSeparatedByString: @"/crunchyroll/objects/"][1] componentsSeparatedByString: @"?"][0];
@@ -55,11 +55,11 @@ NSString* videoToken = nil;
                     requestedEpisodeId = episodeId;
                 }
             } else if (
-                [requestURLString hasPrefix: @"https://beta-api.crunchyroll.com/content/v1/"]
+                [requestURLString hasPrefix: @"https://api.crunchyroll.com/content/v1/"]
             ) {
                 authHeader = [request valueForHTTPHeaderField: @"Authorization"];
             } else if (
-                [requestURLString hasPrefix: @"https://beta-api.crunchyroll.com/cms/v2/"] &&
+                [requestURLString hasPrefix: @"https://api.crunchyroll.com/cms/v2/"] &&
                 [requestURLString containsString: @"/crunchyroll/videos/"] &&
                 [requestURLString containsString: @"/streams"]
             ) {
