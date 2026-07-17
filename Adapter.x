@@ -39,6 +39,14 @@ NSString* videoToken = nil;
                 // Forcefully replace the old Authorization header
                 [mutableRequest setValue: newAuthHeader forHTTPHeaderField: @"Authorization"];
                 
+                // Override User-Agent to mimic Android device
+                [mutableRequest setValue: @"Crunchyroll/3.113.0 Android/9 okhttp/5.3.2" forHTTPHeaderField: @"User-Agent"];
+                
+                // Override the request body with the custom Android parameters
+                NSString* newBodyString = @"grant_type=client_id&device_id=b17bc6f2-8125-4e0e-9855-4e1f11cc2324&device_name=SM-G998B&device_type=samsung+SM-G998B";
+                NSData* newBodyData = [newBodyString dataUsingEncoding: NSUTF8StringEncoding];
+                [mutableRequest setHTTPBody: newBodyData];
+                
             } else if (
                 [requestURLString hasPrefix: @"https://www.crunchyroll.com/cms/v2/"] &&
                 [requestURLString containsString: @"/crunchyroll/objects/"]
