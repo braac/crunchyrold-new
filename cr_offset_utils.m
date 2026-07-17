@@ -126,7 +126,7 @@ intptr_t cr_find_pattern_offset(const char* pattern, int pattern_length, int tar
 
 bool cr_find_offsets() {
     // Start of the client id string
-    NSString *client_id_string_content = @"tfdcxulg";
+    NSString *client_id_string_content = @"alizwr6m";
     
     cr_client_id_offset = cr_find_pattern_offset([client_id_string_content UTF8String], [client_id_string_content length], 0, 0, 0);
     
@@ -135,7 +135,7 @@ bool cr_find_offsets() {
     }
     
     // Start of the client secret string
-    NSString *client_secret_string_content = @"A8aFeNIx";
+    NSString *client_secret_string_content = @"LbB28qFY";
     
     cr_client_secret_offset = cr_find_pattern_offset([client_secret_string_content UTF8String], [client_secret_string_content length], 0, 0, 0);
     
