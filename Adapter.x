@@ -42,6 +42,28 @@ NSString* videoToken = nil;
                 // Override User-Agent to mimic Android device
                 [mutableRequest setValue: @"Crunchyroll/3.113.0 Android/9 okhttp/5.3.2" forHTTPHeaderField: @"User-Agent"];
                 
+                // Extract the grant_type and refresh_token from the iOS app's original body
+                NSData* originalBodyData = [mutableRequest HTTPBody];
+                NSString* originalBodyString = [[NSString alloc] initWithData: originalBodyData encoding: NSUTF8StringEncoding];
+                
+                NSString* grantType = nil;
+                NSString* refreshToken = nil;
+                
+                NSArray* params = [originalBodyString componentsSeparatedByString: @"&"];
+                for (NSString* param in params) {
+                    if ([param hasPrefix: @"grant_type="]) {
+                        grantType = [param substringFromIndex: 11];
+                    } else if ([param hasPrefix: @"refresh_token="]) {
+                        refreshToken = [param substringFromIndex: 14];
+                    }
+                }
+                
+                // If we found them, rebuild the body to perfectly match the Android device
+                if (grantType && refreshToken) {
+                    NSString* newBodyString = [NSString stringWithFormat: @"grant_type=%@&device_id=b17bc6f2-8125-4e0e-9855-4e1f11cc2324&device_name=SM-G998B&device_type=samsung+SM-G998B&refresh_token=%@", grantType, refreshToken];
+                    NSData* newBodyData = [newBodyString dataUsingEncoding: NSUTF8StringEncoding];
+                    [mutableRequest setHTTPBody: newBodyData];
+                }
             } else if (
                 [requestURLString hasPrefix: @"https://www.crunchyroll.com/cms/v2/"] &&
                 [requestURLString containsString: @"/crunchyroll/objects/"]
