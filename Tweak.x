@@ -13,5 +13,5 @@
 %ctor {
     NSLog(@"[Crunchyrold] Loaded - Network Interception Mode");
     
-    %init(CrunchyrollForceUpgradeViewController=objc_getClass("Crunchyroll.ForceUpgradeViewController"));
+    %init(VSSubscriptionRegistrationCenter=objc_getClass("VSSubscriptionRegistrationCenter"));
 }
